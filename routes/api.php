@@ -24,9 +24,11 @@ Route::group(['prefix'=>'students'], function (){
 
     Route::get('/{student}','StudentController@show');
 
-    Route::delete('/{student}','StudentController@destroy');
+    Route::post('/','StudentController@create');
 
-    Route::put('/','StudentController@store');
+    Route::put('/{student}','StudentController@update');
+    
+    Route::delete('/{student}','StudentController@destroy');
 
 });
 
@@ -36,6 +38,8 @@ Route::group(['prefix'=>'courses'], function (){
 
     Route::get('/{course}','CourseController@show');
 
-    Route::put('/','CourseController@store');
+    Route::post('/','CourseController@create');
+
+    Route::delete('/{course}','CourseController@destroy');
 
 });

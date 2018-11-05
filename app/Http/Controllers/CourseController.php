@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use \App\Course;
+use Illuminate\Support\Facades\DB;
+
 
 class CourseController extends Controller
 {
@@ -30,7 +32,19 @@ class CourseController extends Controller
         return $data;
     }
 
-    public function store(Request $request){
+    public function create(Request $request){
+        Course::create($request->only('name', 'max_grade'));
 
+        return response('{"added": true}', 220);
+    }
+
+    public function destroy(Course $course){
+        \App\Grade::where('course_id', $course->id)->delete();
+
+        DB::table('course_student')->where('course_id', $course->id);
+
+        $course->delete();
+
+        return response('{"deleted":true}', 221);
     }
 }

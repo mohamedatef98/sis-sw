@@ -35,10 +35,11 @@ class StudentController extends Controller
         return $data;
     }
 
-    public function store(Request $request){
-        Student::create($request->input('name'));
+    public function create(Request $request){
 
-        return response("{'added': true}", 220);
+        Student::create($request->only('name'));
+
+        return response('{"added": true}', 220);
     }
 
     public function destroy(Student $student){
@@ -49,5 +50,60 @@ class StudentController extends Controller
         $student->delete();
 
         return response('{"deleted":true}', 221);
+    }
+
+    public function update(Request $request, Student $student){
+
+        $student->name = $request->input('name');
+
+        $coursesOld = $student->courses;
+
+        $coursesNew = $request->input('courses');
+
+        foreach($coursesNew as $courseNew){
+            $gradeCount = $student->grades()
+                ->where('course_id', $courseNew['id'])
+                ->count();
+            if($gradeCount < 1){
+                 DB::table('course_student')->insert([
+                    'student_id' => $student->id,
+                    'course_id' => $courseNew['id'],
+                ]);
+                \App\Grade::create([
+                    'student_id' => $student->id,
+                    'course_id' => $courseNew['id'],
+                    'grade' => $courseNew['grade']
+                ]);
+            }
+
+            else{
+                $student->grades()
+                    ->where('course_id', $courseNew['id'])
+                    ->update([
+                        'grade'=> $courseNew['grade']
+                    ]);
+            }
+        }
+
+        foreach($coursesOld as $courseOld){
+            $found = false;
+            foreach($coursesNew as $courseNew){
+                if($courseNew['id'] == $courseOld->id)
+                    $found = true;
+            }
+
+            if(! $found){
+                DB::table('course_student')->where('student_id', $student->id)
+                    ->where('course_id', $courseOld->id)
+                    ->delete();
+                \App\Grade::where('student_id', $student->id)
+                    ->where('course_id', $courseOld->id)
+                    ->delete();
+            }
+        }
+
+        $student->save();
+
+       return response('{"stored":true}', 222);
     }
 }
