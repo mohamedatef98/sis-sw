@@ -47,4 +47,11 @@ class CourseController extends Controller
 
         return response('{"deleted":true}', 221);
     }
+
+    public function search(Request $request){
+        $name = $request->input('q');
+
+        return \App\Course::where('name','like','%'.$name.'%')
+        ->orderBy('name')->get();
+    }
 }

@@ -106,4 +106,5 @@ class StudentController extends Controller
 
        return response('{"stored":true}', 222);
     }
+
 }

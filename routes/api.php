@@ -36,6 +36,8 @@ Route::group(['prefix'=>'courses'], function (){
 
     Route::get('/','CourseController@index');
 
+    Route::get('/search', 'CourseController@search');
+
     Route::get('/{course}','CourseController@show');
 
     Route::post('/','CourseController@create');
